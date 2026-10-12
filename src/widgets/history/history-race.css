@@ -1,0 +1,62 @@
+.hr-root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.hr-root > .table-wrap,
+.hr-root > .hr-fill {
+  flex: 1;
+  min-height: 0;
+}
+.hr-caption {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 12.5px;
+  color: var(--ink2);
+  padding-bottom: 6px;
+}
+.hr-caption strong {
+  color: var(--ink);
+}
+.hr-team {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.hr-driver {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.hr-minor {
+  color: var(--muted);
+}
+.hr-fl {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.hr-fl-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--purple);
+  flex: none;
+}
+.hr-up {
+  color: var(--good);
+}
+.hr-down {
+  color: var(--bad);
+}
+.hr-status {
+  color: var(--muted);
+}
+.hr-dim {
+  opacity: 0.45;
+}

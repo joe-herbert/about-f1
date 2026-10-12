@@ -1,0 +1,208 @@
+.res-root {
+  height: 100%;
+  overflow: auto;
+}
+.res-root .tnum,
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+.res-driver {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.res-headshot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top;
+  background: var(--panel2);
+}
+.minor-text {
+  color: var(--muted);
+}
+.res-status {
+  color: var(--muted);
+  font-weight: 600;
+}
+.res-compact .data-table td,
+.res-compact .data-table th {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+.row-dim {
+  opacity: 0.45;
+}
+
+/* standings */
+.std-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  color: var(--muted);
+}
+.std-change svg {
+  flex: none;
+}
+.std-change.up svg {
+  color: var(--good);
+}
+.std-change.down svg {
+  color: var(--bad);
+}
+.std-team {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+/* driver card */
+.dc-root {
+  height: 100%;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.dc-head {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--hair);
+  position: relative;
+}
+.dc-photo {
+  width: 84px;
+  height: 84px;
+  border-radius: 10px;
+  object-fit: cover;
+  object-position: top;
+  background: var(--panel2);
+  flex: none;
+}
+.dc-num {
+  font-family: var(--font-cond);
+  font-weight: 700;
+  font-size: 44px;
+  line-height: 0.9;
+  font-variant-numeric: tabular-nums;
+}
+.dc-name {
+  font-family: var(--font-cond);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.05;
+  color: var(--ink);
+}
+.dc-team {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink2);
+  font-size: 13px;
+}
+.dc-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 10px 14px;
+}
+.dc-stat-label {
+  font-size: 12px;
+  color: var(--muted);
+}
+.dc-stat-value {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* head to head */
+.h2h-root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+}
+.h2h-names {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+}
+.h2h-names .right {
+  justify-self: end;
+}
+.h2h-vs {
+  color: var(--muted);
+  font-size: 12px;
+}
+.h2h-rows {
+  overflow: auto;
+  flex: 0 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.h2h-row {
+  display: grid;
+  grid-template-columns: 1fr 112px 1fr;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+.h2h-metric {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+}
+.h2h-side {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.h2h-side.left {
+  flex-direction: row-reverse;
+}
+.h2h-bar {
+  height: 6px;
+  border-radius: 3px;
+  flex: 1;
+  background: var(--panel2);
+  position: relative;
+  overflow: hidden;
+}
+.h2h-bar span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 3px;
+}
+.h2h-side.left .h2h-bar span {
+  right: 0;
+}
+.h2h-side.right .h2h-bar span {
+  left: 0;
+}
+.h2h-val {
+  min-width: 64px;
+  color: var(--ink2);
+}
+.h2h-side.left .h2h-val {
+  text-align: right;
+}
+.h2h-val.win {
+  color: var(--ink);
+  font-weight: 700;
+}
+.h2h-chart {
+  flex: 1 1 120px;
+  min-height: 110px;
+}

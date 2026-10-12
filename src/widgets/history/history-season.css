@@ -1,0 +1,216 @@
+.hs-swatch {
+  display: inline-block;
+  width: 4px;
+  height: 14px;
+  border-radius: 2px;
+  flex: none;
+}
+.hs-swatch.hollow {
+  background: transparent;
+  border: 2px solid;
+  width: 6px;
+}
+.hs-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+.hs-team-bar {
+  display: inline-block;
+  width: 5px;
+  align-self: stretch;
+  min-height: 18px;
+  border-radius: 2px;
+  flex: none;
+}
+
+/* careers */
+.hs-career {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+.hs-career-head {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+.hs-career-name {
+  font-family: var(--font-cond);
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1.1;
+}
+.hs-career-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  color: var(--ink2);
+  font-size: 13px;
+  margin-top: 2px;
+}
+.hs-teams {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+.hs-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: 8px 12px;
+}
+.hs-stat {
+  display: flex;
+  flex-direction: column;
+}
+.hs-stat-label {
+  font-size: 12px;
+  color: var(--muted);
+}
+.hs-stat-value {
+  font-family: var(--font-cond);
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 1.1;
+}
+.hs-career-chart {
+  flex: 1;
+  min-height: 120px;
+}
+
+/* teammates */
+.hs-teammates {
+  height: 100%;
+  overflow: auto;
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+.hs-pair-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: var(--font-cond);
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+.hs-pair-team {
+  font-family: var(--font);
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+.hs-h2h-row {
+  display: grid;
+  grid-template-columns: 36px 1fr 36px 72px;
+  align-items: center;
+  gap: 8px;
+  height: 20px;
+  font-size: 12.5px;
+}
+.hs-h2h-val {
+  text-align: right;
+  font-weight: 600;
+}
+.hs-h2h-val.right {
+  text-align: left;
+}
+.hs-h2h-label {
+  color: var(--muted);
+  font-size: 12px;
+}
+.hs-h2h-track {
+  position: relative;
+  height: 8px;
+  background: var(--panel2);
+  border-radius: 4px;
+}
+.hs-h2h-left,
+.hs-h2h-right {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  box-sizing: border-box;
+}
+.hs-h2h-left {
+  right: 50%;
+  border-radius: 4px 0 0 4px;
+  margin-right: 1px;
+}
+.hs-h2h-right {
+  left: 50%;
+  border: 2px solid;
+  border-radius: 0 4px 4px 0;
+  margin-left: 1px;
+}
+.hs-h2h-mid {
+  position: absolute;
+  left: 50%;
+  top: -3px;
+  bottom: -3px;
+  width: 1px;
+  background: var(--axis);
+}
+
+/* season summary */
+.hs-summary {
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 16px;
+  min-height: 0;
+}
+@container (max-width: 520px) {
+  .hs-summary {
+    grid-template-columns: 1fr;
+    overflow: auto;
+  }
+}
+.hs-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  align-content: start;
+  overflow: auto;
+}
+.hs-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  background: var(--panel2);
+  border-radius: 8px;
+  min-width: 0;
+}
+.hs-tile-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-cond);
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hs-tile-sub {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hs-summary-chart {
+  display: flex;
+  flex-direction: column;
+  min-height: 160px;
+}
+.hs-summary-plot {
+  flex: 1;
+  min-height: 0;
+}

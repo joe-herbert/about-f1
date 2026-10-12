@@ -1,0 +1,230 @@
+.race-fill {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.race-fill > .table-wrap {
+  flex: 1;
+  min-height: 0;
+}
+.race-note {
+  font-size: 11.5px;
+  color: var(--muted);
+  padding: 0 2px 6px;
+  line-height: 1.35;
+}
+.race-key {
+  display: flex;
+  gap: 14px;
+  font-size: 11px;
+  color: var(--muted);
+  padding: 6px 2px 0;
+}
+.race-key > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.sector-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-variant-numeric: tabular-nums;
+}
+.sector-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+}
+
+/* ---------- overtakes feed ---------- */
+.race-feed {
+  height: 100%;
+  overflow: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.race-feed li {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--hair);
+  font-size: 12.5px;
+}
+.race-feed .feed-time {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  font-size: 11.5px;
+}
+.race-feed .feed-what {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink2);
+}
+.race-feed .feed-pos {
+  font-family: var(--font-cond);
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- timing tower ---------- */
+.tower {
+  height: 100%;
+  overflow: auto;
+  font-family: var(--font-cond);
+  font-variant-numeric: tabular-nums;
+}
+.tower-head,
+.tower-row {
+  display: grid;
+  grid-template-columns: 30px 4px minmax(54px, 1.2fr) minmax(64px, 1fr) minmax(64px, 1fr) minmax(64px, 1fr) 54px 32px 40px;
+  align-items: center;
+  column-gap: 8px;
+  padding: 0 8px 0 4px;
+}
+.tower-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  height: 24px;
+  border-bottom: 1px solid var(--hair);
+}
+.tower-row {
+  height: 30px;
+  font-size: 14px;
+  color: var(--ink);
+  border-bottom: 1px solid var(--hair);
+}
+.tower-row:nth-child(even) {
+  background: var(--panel2);
+}
+.tower-row.dim {
+  opacity: 0.4;
+}
+.tower-row.out {
+  color: var(--muted);
+}
+.tower-pos {
+  font-weight: 700;
+  font-size: 15px;
+  text-align: right;
+}
+.tower-bar {
+  width: 4px;
+  height: 18px;
+  border-radius: 2px;
+}
+.tower-code {
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tower-code small {
+  font-weight: 500;
+  font-size: 11px;
+  color: var(--muted);
+  margin-left: 6px;
+  letter-spacing: 0;
+}
+.tower-num {
+  text-align: right;
+  white-space: nowrap;
+}
+.tower-num.best {
+  font-weight: 600;
+}
+.tower-num.fastest {
+  display: inline-flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 5px;
+}
+.tower-delta {
+  text-align: right;
+  font-size: 12px;
+  font-weight: 600;
+}
+.tower-delta.up {
+  color: var(--good);
+}
+.tower-delta.down {
+  color: var(--bad);
+}
+.tower-delta.same {
+  color: var(--muted);
+}
+.tower .compound {
+  justify-self: center;
+}
+.tower-narrow .tower-head,
+.tower-narrow .tower-row {
+  grid-template-columns: 30px 4px minmax(54px, 1fr) minmax(64px, 1fr) 40px;
+}
+.tower-narrow .wide {
+  display: none;
+}
+
+/* ---------- lap chart table ---------- */
+.lapgrid {
+  height: 100%;
+  overflow: auto;
+}
+.lapgrid table {
+  border-collapse: collapse;
+  width: 100%;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+.lapgrid th {
+  position: sticky;
+  top: 0;
+  background: var(--panel);
+  z-index: 1;
+  font-weight: 500;
+  color: var(--ink2);
+  padding: 4px 8px;
+  text-align: right;
+  border-bottom: 1px solid var(--hair);
+  white-space: nowrap;
+}
+.lapgrid th:first-child,
+.lapgrid td:first-child {
+  text-align: right;
+  color: var(--muted);
+  width: 36px;
+}
+.lapgrid td {
+  padding: 3px 8px;
+  text-align: right;
+  border-bottom: 1px solid var(--hair);
+  color: var(--ink);
+  white-space: nowrap;
+}
+.lapgrid td.lap-best {
+  font-weight: 700;
+  box-shadow: inset 3px 0 0 #a335ee;
+}
+.lapgrid td.lap-pit {
+  color: var(--muted);
+}
+.lapgrid .th-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}

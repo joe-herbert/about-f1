@@ -1,0 +1,240 @@
+.mw-scroll {
+  height: 100%;
+  overflow: auto;
+}
+.mw-col {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.mw-col > .mw-grow {
+  flex: 1;
+  min-height: 0;
+}
+
+/* feed (race control, team radio) */
+.mw-feed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.mw-feed li {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 4px 12px;
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--hair);
+  font-size: 13px;
+  color: var(--ink);
+}
+.mw-feed li:last-child {
+  border-bottom: 0;
+}
+.mw-feed .mw-meta {
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+}
+.mw-feed .mw-msg {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.4;
+}
+.mw-feed audio {
+  width: 100%;
+  height: 30px;
+  margin-top: 4px;
+}
+
+/* stat tiles */
+.mw-stat {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px 6px;
+}
+.mw-stat-label {
+  color: var(--ink2);
+  font-size: 13px;
+}
+.mw-stat-value {
+  font-family: var(--font-cond);
+  font-weight: 600;
+  font-size: clamp(24px, 15cqw, 44px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  line-height: 1.05;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.mw-stat-sub {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.mw-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  height: 100%;
+  overflow: auto;
+  align-content: start;
+}
+.mw-tile {
+  background: var(--panel2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mw-tile-label {
+  color: var(--ink2);
+  font-size: 12px;
+}
+.mw-tile-value {
+  font-family: var(--font-cond);
+  font-weight: 600;
+  font-size: 26px;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mw-tile svg.mw-spark {
+  width: 100%;
+  height: 26px;
+  margin-top: 4px;
+}
+
+/* calendar */
+.mw-cal {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.mw-cal > li {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 4px 10px;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--hair);
+}
+.mw-cal > li.mw-past {
+  opacity: 0.72;
+}
+.mw-cal img {
+  width: 30px;
+  height: 20px;
+  object-fit: cover;
+  border-radius: 3px;
+  margin-top: 2px;
+  box-shadow: 0 0 0 1px var(--hair);
+}
+.mw-cal-name {
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 14px;
+}
+.mw-cal-sub {
+  color: var(--muted);
+  font-size: 12px;
+}
+.mw-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+.mw-chip {
+  font: inherit;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--hair);
+  background: var(--panel);
+  color: var(--ink2);
+  cursor: pointer;
+}
+.mw-chip:hover {
+  border-color: var(--axis);
+  color: var(--ink);
+}
+.mw-chip.mw-on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.mw-chip.mw-next {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.mw-chip:disabled {
+  cursor: default;
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+/* notes */
+.mw-notes {
+  height: 100%;
+  overflow: auto;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.55;
+  max-width: 72ch;
+}
+.mw-notes h1,
+.mw-notes h2,
+.mw-notes h3 {
+  font-family: var(--font-cond);
+  font-weight: 600;
+  margin: 0.4em 0 0.2em;
+  line-height: 1.15;
+}
+.mw-notes h1 {
+  font-size: 24px;
+}
+.mw-notes h2 {
+  font-size: 19px;
+}
+.mw-notes h3 {
+  font-size: 16px;
+}
+.mw-notes p,
+.mw-notes ul {
+  margin: 0 0 0.6em;
+}
+.mw-notes ul {
+  padding-left: 1.2em;
+}
+.mw-notes a {
+  color: var(--accent);
+}
+.mw-notes-edit {
+  width: 100%;
+  height: 100%;
+  resize: none;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--panel2);
+  border: 1px solid var(--axis);
+  border-radius: 6px;
+  padding: 8px;
+  box-sizing: border-box;
+}
+.mw-hint {
+  color: var(--muted);
+  font-size: 12px;
+}

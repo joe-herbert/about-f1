@@ -1,0 +1,15 @@
+[
+  { "slug": "basics", "title": "The basics", "blurb": "What Formula 1 is, who runs it, and how a season and a race weekend fit together." },
+  { "slug": "qualifying", "title": "Qualifying and the grid", "blurb": "How the starting order is decided, and what can move a driver up or down it." },
+  { "slug": "race", "title": "The race", "blurb": "From the formation lap to the chequered flag: starts, pit stops, safety cars, red flags and the rules of racing." },
+  { "slug": "flags", "title": "Flags and signals", "blurb": "What each flag and light means, and what drivers have to do when they see it." },
+  { "slug": "sprint", "title": "Sprint weekends", "blurb": "The shorter Saturday race and how its weekend schedule differs." },
+  { "slug": "points", "title": "Points and championships", "blurb": "How points are scored, how the two titles are won and how ties are broken." },
+  { "slug": "tyres", "title": "Tyres", "blurb": "Compounds, allocations, wet-weather tyres and the rules that shape tyre strategy." },
+  { "slug": "car", "title": "The car", "blurb": "How a modern F1 car works under the 2026 regulations: power unit, aerodynamics, fuel, weight and safety." },
+  { "slug": "penalties", "title": "Penalties and stewards", "blurb": "Who judges incidents, what punishments they can hand out, and how teams can challenge them." },
+  { "slug": "strategy", "title": "Strategy and racecraft", "blurb": "The thinking behind pit calls, team orders, tyre management and overtaking." },
+  { "slug": "teams", "title": "Teams and the business", "blurb": "The cost cap, testing limits, driver contracts, licences and how the money works." },
+  { "slug": "officials", "title": "Officials and safety", "blurb": "Race control, marshals, the medical team and the people who keep a race running safely." },
+  { "slug": "glossary", "title": "Glossary", "blurb": "Short definitions of the words and abbreviations you'll hear during a broadcast." }
+]
