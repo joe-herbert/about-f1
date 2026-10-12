@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { BookOpen, Moon, RefreshCw, Settings, Sun } from 'lucide-react'
+import { BookOpen, Moon, RefreshCw, Settings, Sun, UserRound } from 'lucide-react'
 import { onQueueChange } from './api/client'
+import { AccountDialog } from './components/AccountDialog'
 import { DashboardGrid } from './components/DashboardGrid'
 import { DashboardTabs } from './components/DashboardTabs'
 import { DriverFilterBar } from './components/DriverFilterBar'
@@ -12,17 +13,35 @@ import { WidgetFrame } from './components/WidgetFrame'
 import { WidgetLibrary } from './components/WidgetLibrary'
 import { WidgetSettings } from './components/WidgetSettings'
 import { useTokens } from './lib/theme'
-import { useActiveDashboard, useStore } from './store'
+import { THEME_KEY, useActiveDashboard, useStore } from './store'
+import { useAccount } from './store/account'
 
 function useApplyTheme() {
   const t = useTokens()
   const density = useStore((s) => s.prefs.density)
+  const theme = useStore((s) => s.prefs.theme)
   useEffect(() => {
     const root = document.documentElement
     root.dataset.theme = t.mode
     root.dataset.density = density
     root.style.colorScheme = t.mode
   }, [t.mode, density])
+  // Keep the guide pages on the same theme, including guide tabs already open.
+  useEffect(() => {
+    try {
+      localStorage.setItem(THEME_KEY, theme)
+    } catch {
+      // Storage blocked: the guide falls back to the system theme.
+    }
+  }, [theme])
+  // And follow the guide's theme toggle from another tab.
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === THEME_KEY && (e.newValue === 'light' || e.newValue === 'dark' || e.newValue === 'system')) useStore.getState().setPrefs({ theme: e.newValue })
+    }
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [])
   return t
 }
 
@@ -45,9 +64,11 @@ export default function App() {
   const setPrefs = useStore((s) => s.setPrefs)
   const dash = useActiveDashboard()
   const inflight = useInflight()
+  const signedIn = useAccount((s) => !!s.user)
 
   const [libOpen, setLibOpen] = useState(false)
   const [prefsOpen, setPrefsOpen] = useState(false)
+  const [accountOpen, setAccountOpen] = useState(false)
   const [settingsId, setSettingsId] = useState<string | null>(null)
   const [maxId, setMaxId] = useState<string | null>(null)
   const maxInstance = maxId ? dash.widgets[maxId] : undefined
@@ -92,6 +113,10 @@ export default function App() {
           <button type="button" className="icon-btn" title="Preferences" aria-label="Preferences" onClick={() => setPrefsOpen(true)}>
             <Settings size={16} />
           </button>
+          <button type="button" className="nav-link account-btn" title={signedIn ? 'Account' : 'Sign in to save your setup to an account'} onClick={() => setAccountOpen(true)}>
+            <UserRound size={15} />
+            <span>{signedIn ? 'Account' : 'Sign in'}</span>
+          </button>
         </div>
       </header>
 
@@ -113,6 +138,7 @@ export default function App() {
       <WidgetLibrary open={libOpen} onClose={() => setLibOpen(false)} />
       <WidgetSettings id={settingsId} onClose={() => setSettingsId(null)} />
       <PrefsDialog open={prefsOpen} onClose={() => setPrefsOpen(false)} />
+      <AccountDialog open={accountOpen} onClose={() => setAccountOpen(false)} />
     </div>
   )
 }

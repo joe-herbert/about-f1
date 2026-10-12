@@ -1,13 +1,37 @@
 // Guide page behaviour: search, theme toggle, "on this page" highlighting.
 ;(() => {
+  // Signed in to the dashboard, favourites and the theme are saved to the account.
+  // Signed out, they're kept in this browser. `account` is null until we know.
+  let account = null
+  const json = { 'content-type': 'application/json' }
+  const post = (path, body) => fetch(path, { method: 'POST', headers: json, body: JSON.stringify(body) })
+  const patch = (path, body) => fetch(path, { method: 'PATCH', headers: json, body: JSON.stringify(body) })
+  const getJson = (path) => fetch(path).then((r) => (r.ok ? r.json() : null))
+
   // ---------- theme ----------
+  // One preference shared with the dashboard. 'f1-theme' is this browser's copy of it,
+  // which the <head> script reads to paint the right theme first time.
+  const THEME_KEY = 'f1-theme'
   const root = document.documentElement
+  const applyTheme = (pref) => {
+    const dark = pref === 'dark' || (pref !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)
+    root.dataset.theme = dark ? 'dark' : 'light'
+  }
+  const cacheTheme = (pref) => {
+    try {
+      localStorage.setItem(THEME_KEY, pref)
+    } catch {}
+  }
   document.querySelector('.theme-toggle')?.addEventListener('click', () => {
     const next = root.dataset.theme === 'dark' ? 'light' : 'dark'
-    root.dataset.theme = next
+    applyTheme(next)
+    cacheTheme(next)
+    if (account) {
+      void patch('/api/settings/prefs', { theme: next }).catch(() => {})
+      return
+    }
+    // Signed out: change the dashboard's saved preference too, if it has any.
     try {
-      localStorage.setItem('guide-theme', next)
-      // Keep the dashboard in step if it has saved preferences.
       const raw = localStorage.getItem('f1-stats')
       if (raw) {
         const saved = JSON.parse(raw)
@@ -18,11 +42,13 @@
       }
     } catch {}
   })
+  // Follow changes made in other tabs (the dashboard or another guide page).
+  window.addEventListener('storage', (e) => e.key === THEME_KEY && e.newValue && applyTheme(e.newValue))
 
   // ---------- favourites ----------
-  // Saved in this browser only, newest first: [{ u: url, t: title, s: section }]
+  // Newest first: [{ u: url, t: title, s: section }]
   const FAV_KEY = 'guide-favourites'
-  const readFavs = () => {
+  const readLocal = () => {
     try {
       const v = JSON.parse(localStorage.getItem(FAV_KEY) || '[]')
       return Array.isArray(v) ? v : []
@@ -30,12 +56,68 @@
       return []
     }
   }
-  const writeFavs = (list) => {
-    try {
-      localStorage.setItem(FAV_KEY, JSON.stringify(list))
-    } catch {}
+  const readFavs = () => (account ? account.favs : readLocal())
+  const storeFavs = (list) => {
+    if (account) account.favs = list
+    else {
+      try {
+        localStorage.setItem(FAV_KEY, JSON.stringify(list))
+      } catch {}
+    }
     renderFavs()
   }
+
+  // Set by the dashboard while signed in, so signed-out visits don't call the API at all.
+  const ACCOUNT_HINT_KEY = 'f1-account'
+  const hinted = () => {
+    try {
+      return !!localStorage.getItem(ACCOUNT_HINT_KEY)
+    } catch {
+      return false
+    }
+  }
+
+  async function loadAccount() {
+    if (!hinted()) {
+      account = null
+      return
+    }
+    try {
+      const [favs, prefs] = await Promise.all([getJson('/api/favourites'), getJson('/api/settings/prefs')])
+      if (!favs) {
+        // Session expired: drop the hint until the next sign-in.
+        account = null
+        localStorage.removeItem(ACCOUNT_HINT_KEY)
+        return
+      }
+      account = { favs: favs.favourites.map((f) => ({ u: f.url, t: f.title, s: f.section })) }
+      const theme = prefs?.prefs?.theme
+      if (theme) {
+        applyTheme(theme)
+        cacheTheme(theme)
+      }
+    } catch {
+      // No API, or not JSON (a static deploy): carry on signed out.
+      account = null
+    }
+  }
+
+  // Account changes are sent one at a time; if one fails, reload the account's list.
+  const syncFav = (req) =>
+    req
+      .then((r) => {
+        if (!r.ok) throw new Error(String(r.status))
+      })
+      .catch(() => loadAccount().then(renderFavs))
+  const addFav = (f) => {
+    storeFavs([f, ...readFavs().filter((x) => x.u !== f.u)])
+    if (account) syncFav(post('/api/favourites', { url: f.u, title: f.t, section: f.s }))
+  }
+  const removeFav = (url) => {
+    storeFavs(readFavs().filter((f) => f.u !== url))
+    if (account) syncFav(fetch(`/api/favourites?url=${encodeURIComponent(url)}`, { method: 'DELETE' }))
+  }
+
   const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
   const removeIcon = `<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`
 
@@ -64,32 +146,40 @@
     }
   }
 
-  document.addEventListener('click', (e) => {
+  const ready = loadAccount()
+
+  document.addEventListener('click', async (e) => {
     const btn = e.target.closest('[data-fav]')
-    if (btn) {
-      const list = readFavs()
-      const { url, title, section } = btn.dataset
-      writeFavs(list.some((f) => f.u === url) ? list.filter((f) => f.u !== url) : [{ u: url, t: title, s: section }, ...list])
-      return
-    }
     const rm = e.target.closest('[data-unfav]')
-    if (rm) writeFavs(readFavs().filter((f) => f.u !== rm.dataset.unfav))
+    if (!btn && !rm) return
+    await ready
+    if (rm) return removeFav(rm.dataset.unfav)
+    const { url, title, section } = btn.dataset
+    if (readFavs().some((f) => f.u === url)) removeFav(url)
+    else addFav({ u: url, t: title, s: section })
   })
 
-  // Pages can be renamed, so refresh the saved title when visiting a favourite.
-  const here = document.querySelector('[data-fav]')
-  if (here) {
-    const list = readFavs()
-    const f = list.find((x) => x.u === here.dataset.url)
+  void ready.then(() => {
+    // Pages can be renamed, so refresh the saved title when visiting a favourite.
+    const here = document.querySelector('[data-fav]')
+    const f = here && readFavs().find((x) => x.u === here.dataset.url)
     if (f && (f.t !== here.dataset.title || f.s !== here.dataset.section)) {
-      f.t = here.dataset.title
-      f.s = here.dataset.section
-      writeFavs(list)
+      const fresh = { u: f.u, t: here.dataset.title, s: here.dataset.section }
+      storeFavs(readFavs().map((x) => (x.u === f.u ? fresh : x)))
+      if (account) syncFav(post('/api/favourites', { url: fresh.u, title: fresh.t, section: fresh.s }))
     }
-  }
-  renderFavs()
+    renderFavs()
+  })
+
   // Keep other open tabs in step.
-  window.addEventListener('storage', (e) => e.key === FAV_KEY && renderFavs())
+  window.addEventListener('storage', (e) => {
+    if (e.key === FAV_KEY && !account) renderFavs()
+    // Signed in or out in a dashboard tab.
+    if (e.key === ACCOUNT_HINT_KEY) void loadAccount().then(renderFavs)
+  })
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && account) void loadAccount().then(renderFavs)
+  })
 
   // ---------- search ----------
   const STOP = new Set('a an and are at be by can could did do does explain explained f1 for from get gets got happen happens has have how i if in is it mean means me my of on or should the there they to was were what when where which who why will with work works would you your'.split(' '))

@@ -38,6 +38,22 @@ export interface Dashboard {
 
 export type ThemePref = 'system' | 'light' | 'dark'
 
+/**
+ * This browser's copy of the theme preference, shared with the guide pages so they can
+ * apply it before painting. The preference itself is `prefs.theme` (localStorage or account).
+ */
+export const THEME_KEY = 'f1-theme'
+
+function storedTheme(): ThemePref {
+  try {
+    const t = localStorage.getItem(THEME_KEY)
+    if (t === 'light' || t === 'dark' || t === 'system') return t
+  } catch {
+    // Storage blocked: fall through.
+  }
+  return 'system'
+}
+
 export interface Prefs {
   theme: ThemePref
   speedUnit: 'kmh' | 'mph'
@@ -86,6 +102,9 @@ interface State {
   removeWidget: (id: string) => void
 }
 
+/** What's saved: in localStorage for guests, in the account when signed in (see ./account). */
+export type PersistedState = Pick<State, 'dashboards' | 'activeId' | 'year' | 'sessionKey' | 'drivers' | 'locked' | 'prefs' | 'plugins'>
+
 export const uid = () => Math.random().toString(36).slice(2, 10)
 
 const BREAKPOINTS = ['lg', 'md', 'sm'] as const
@@ -126,7 +145,8 @@ export const useStore = create<State>()(
       drivers: [],
       locked: false,
       prefs: {
-        theme: 'system',
+        // Starting fresh: keep whatever theme the guide was set to.
+        theme: storedTheme(),
         speedUnit: 'kmh',
         tempUnit: 'C',
         filterMode: 'dim',
@@ -263,7 +283,7 @@ export const useStore = create<State>()(
         }
         return s
       },
-      partialize: (s) => ({
+      partialize: (s): PersistedState => ({
         dashboards: s.dashboards,
         activeId: s.activeId,
         year: s.year,

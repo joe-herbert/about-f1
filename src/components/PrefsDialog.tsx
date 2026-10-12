@@ -51,7 +51,7 @@ export function PrefsDialog({ open, onClose }: { open: boolean; onClose: () => v
         <fieldset className="fieldset">
           <legend>Data</legend>
           <p className="settings-desc">
-            Finished sessions are cached in your browser so they load instantly and don’t count against OpenF1’s rate limit. Everything you set up is saved in this browser only.
+            Finished sessions are cached in your browser so they load instantly and don’t count against OpenF1’s rate limit. Everything you set up is saved in this browser, or in your account when you’re signed in.
           </p>
           <p className="settings-desc">
             Live timing (2023 onward) comes from OpenF1; anything older, and gaps such as starting grids, come from <a href="https://github.com/jolpica/jolpica-f1" target="_blank" rel="noreferrer">Jolpica F1</a>, which allows 500 requests an hour. Past seasons are cached permanently.{' '}

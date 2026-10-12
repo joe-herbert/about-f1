@@ -14,4 +14,8 @@ export default defineConfig({
       season: '2026',
     }),
   ],
+  server: {
+    // The API server (`npm run dev:server`) handles sign-in and saved settings.
+    proxy: { '/api': 'http://localhost:3000' },
+  },
 })

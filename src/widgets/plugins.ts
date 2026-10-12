@@ -112,6 +112,14 @@ export function pluginsFor(types: Iterable<string>): string[] {
 
 export const usePluginsLoading = () => usePluginStatus((s) => Object.values(s).some((p) => p.state === 'loading'))
 
+/** Load the saved plugins, dropping any no longer saved (after signing in or out). */
 export function loadInstalledPlugins() {
-  for (const url of useStore.getState().plugins) void loadPlugin(url)
+  const urls = new Set(useStore.getState().plugins)
+  const status = usePluginStatus.getState()
+  for (const url of Object.keys(status)) {
+    if (urls.has(url)) continue
+    unregisterSource(url)
+    setStatus(url, null)
+  }
+  for (const url of urls) if (!status[url]) void loadPlugin(url)
 }

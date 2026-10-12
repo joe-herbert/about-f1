@@ -15,7 +15,8 @@ export interface PageOpts {
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
 // Reads the dashboard's saved theme too, so both halves of the site match.
-const themeScript = `(function(){var t;try{t=localStorage.getItem('guide-theme')||(JSON.parse(localStorage.getItem('f1-stats')||'{}').state||{prefs:{}}).prefs.theme}catch(e){}var d=t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=d?'dark':'light'})()`
+// Same theme as the dashboard: 'f1-theme' is the browser's copy of its theme preference.
+const themeScript = `(function(){var t;try{t=localStorage.getItem('f1-theme')||(JSON.parse(localStorage.getItem('f1-stats')||'{}').state||{prefs:{}}).prefs.theme}catch(e){}var d=t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=d?'dark':'light'})()`
 
 const brandMark = `<svg viewBox="0 0 28 16" width="28" height="16" aria-hidden="true"><path d="M1 15 L9 1 H27 L25 5 H12 L10.5 8 H22 L20 12 H8.5 L7 15 Z" fill="currentColor"/></svg>`
 
