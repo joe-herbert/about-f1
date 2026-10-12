@@ -11,7 +11,8 @@
     "dev:web": "vite",
     "dev:server": "node --watch --env-file-if-exists=.env server/index.ts",
     "start": "NODE_ENV=production node --env-file-if-exists=.env server/index.ts",
-    "db:up": "docker compose up -d --wait db"
+    "db:up": "docker compose up -d --wait db",
+    "bake:records": "node scripts/bake-records.ts"
   },
   "dependencies": {
     "@better-auth/passkey": "^1.7.7",

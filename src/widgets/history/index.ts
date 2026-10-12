@@ -4,6 +4,7 @@ import { histAllTime } from './season-AllTime'
 import { histChampions } from './season-Champions'
 import { histConstructorCareer } from './season-ConstructorCareer'
 import { histDriverCareer } from './season-DriverCareer'
+import { histRecords } from './season-Records'
 import { histSeasonSummary } from './season-Summary'
 import { histTeammates } from './season-Teammates'
 
@@ -13,6 +14,7 @@ export const historyWidgets: WidgetDef[] = [
   histTeammates,
   histChampions,
   histAllTime,
+  histRecords,
   histDriverCareer,
   histConstructorCareer,
   histCircuit,
