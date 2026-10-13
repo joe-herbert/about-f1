@@ -202,3 +202,11 @@ async function loadRecords(): Promise<Records & { liveError: string | null }> {
 
 export const useRecords = () =>
   useQuery({ queryKey: ['records'], queryFn: loadRecords, staleTime: 10 * 60 * 1000, retry: 0 })
+
+/** Every baked driver with a Jolpica id, for driver searches (no Jolpica requests). */
+export const useDriverIndex = () =>
+  useQuery({
+    queryKey: ['records', 'drivers'],
+    queryFn: () => loadRaw().then((r) => r.drivers.flatMap(([, jid, name]) => (jid ? [{ id: jid, name }] : []))),
+    staleTime: Infinity,
+  })

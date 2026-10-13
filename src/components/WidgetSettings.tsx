@@ -10,6 +10,7 @@ import { Drawer } from './Drawer'
 import { SessionPicker, yearChoices } from './SessionPicker'
 import { FIRST_SEASON, useJSeasonDrivers } from '../api/jolpica/hooks'
 import { LEGENDS } from '../lib/history'
+import { useDriverIndex } from '../api/records/load'
 import { byChampionship, useChampionshipOrder } from '../lib/championshipOrder'
 
 function OptionField({ spec, value, onChange, sessionKey }: { spec: OptionSpec; value: OptionValue; onChange: (v: OptionValue) => void; sessionKey: number | null }) {
@@ -123,25 +124,46 @@ function OptionField({ spec, value, onChange, sessionKey }: { spec: OptionSpec; 
 function HistDriverField({ id, label, help, value, onChange }: { id: string; label: string; help?: string; value: string; onChange: (v: OptionValue) => void }) {
   const year = useStore((s) => s.year)
   const season = useJSeasonDrivers(year)
+  const index = useDriverIndex()
+  // Header season first, then legends, then everyone else since 1950 (the baked list
+  // misses rookies after the bake, which the season list covers).
   const options = useMemo(() => {
-    const seen = new Set<string>()
-    const out: { id: string; name: string }[] = []
-    for (const d of season.data?.drivers ?? []) {
-      seen.add(d.driverId)
-      out.push({ id: d.driverId, name: `${d.givenName} ${d.familyName} (${year})` })
-    }
-    for (const l of LEGENDS) if (!seen.has(l.id)) out.push(l)
+    const out = new Map<string, string>()
+    for (const d of season.data?.drivers ?? []) out.set(d.driverId, `${d.givenName} ${d.familyName}`)
+    for (const l of LEGENDS) if (!out.has(l.id)) out.set(l.id, l.name)
+    for (const d of [...(index.data ?? [])].sort((a, b) => a.name.localeCompare(b.name))) if (!out.has(d.id)) out.set(d.id, d.name)
     return out
-  }, [season.data, year])
+  }, [season.data, index.data])
+  const nameOf = (v: string) => options.get(v) ?? v
+  const [text, setText] = useState<string | null>(null) // null while not editing: show the saved driver's name
+  const resolve = (t: string) => {
+    const q = t.trim().toLowerCase()
+    if (options.has(q)) return q
+    for (const [k, name] of options) if (name.toLowerCase() === q) return k
+    return null
+  }
   return (
     <label className="field" htmlFor={id}>
       <span>{label}</span>
-      <input id={id} type="text" list={`${id}-list`} placeholder="Automatic" value={value} onChange={(e) => onChange(e.target.value.trim())} />
+      <input
+        id={id}
+        type="text"
+        list={`${id}-list`}
+        placeholder="Automatic"
+        autoComplete="off"
+        value={text ?? nameOf(value)}
+        onChange={(e) => {
+          // Only save a recognised driver; saving every keystroke would fetch a career per letter.
+          setText(e.target.value)
+          const hit = e.target.value.trim() ? resolve(e.target.value) : ''
+          if (hit !== null && hit !== value) onChange(hit)
+        }}
+        onBlur={() => setText(null)}
+        onKeyDown={(e) => e.key === 'Escape' && setText(null)}
+      />
       <datalist id={`${id}-list`}>
-        {options.map((o) => (
-          <option key={o.id} value={o.id}>
-            {o.name}
-          </option>
+        {[...options].map(([k, name]) => (
+          <option key={k} value={name} />
         ))}
       </datalist>
       <small>{help ?? 'Start typing a name and choose from the list. Leave empty to follow the race winner.'}</small>
