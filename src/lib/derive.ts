@@ -1,4 +1,4 @@
-import type { CarData, Interval, Lap, Position, Session } from '../api/types'
+import type { CarData, Interval, Lap, Position, RaceControl, Session } from '../api/types'
 
 export const isRace = (s?: Session) => s?.session_type === 'Race'
 export const isQuali = (s?: Session) => s?.session_type === 'Qualifying'
@@ -100,7 +100,7 @@ export function lapEndTimes(laps: Lap[] | undefined): Map<number, Map<number, nu
 }
 
 /** Value of a time series at time t (last sample at or before t). Series must be sorted by time. */
-function sampleAt<T>(series: { t: number; v: T }[], t: number): T | null {
+export function sampleAt<T>(series: { t: number; v: T }[], t: number): T | null {
   let lo = 0
   let hi = series.length - 1
   let ans = -1
@@ -164,6 +164,48 @@ export function latestBy<T extends { date: string; driver_number: number }>(rows
     if (!prev || r.date > prev.date) m.set(r.driver_number, r)
   }
   return m
+}
+
+/* ---------- neutralisations ---------- */
+
+export type NeutralKind = 'SC' | 'VSC' | 'RED'
+
+export interface NeutralPeriod {
+  kind: NeutralKind
+  start: number
+  /** null while it's still running */
+  end: number | null
+}
+
+/**
+ * Safety car, virtual safety car and red flag periods from race control messages.
+ * A red flag takes over from a safety car; track clear, green or the chequered flag ends either.
+ */
+export function neutralPeriods(messages: RaceControl[] | undefined): NeutralPeriod[] {
+  const out: NeutralPeriod[] = []
+  let open = null as NeutralPeriod | null
+  const begin = (kind: NeutralKind, t: number) => {
+    if (open?.kind === kind) return
+    if (open) open.end = t
+    open = { kind, start: t, end: null }
+    out.push(open)
+  }
+  const close = (t: number) => {
+    if (open) open.end = t
+    open = null
+  }
+  for (const m of [...(messages ?? [])].sort((a, b) => a.date.localeCompare(b.date))) {
+    const t = Date.parse(m.date)
+    const msg = m.message.toUpperCase()
+    const track = m.scope === 'Track'
+    if (/^(VIRTUAL SAFETY CAR|VSC) DEPLOYED/.test(msg)) begin('VSC', t)
+    else if (/^(VIRTUAL SAFETY CAR|VSC) ENDING/.test(msg)) {
+      if (open?.kind === 'VSC') close(t)
+    } else if (msg.startsWith('SAFETY CAR DEPLOYED')) begin('SC', t)
+    else if (m.flag === 'RED' && track) begin('RED', t)
+    else if (m.flag === 'CHEQUERED' || (track && (m.flag === 'CLEAR' || (m.flag === 'GREEN' && !msg.includes('PIT EXIT'))))) close(t)
+  }
+  return out
 }
 
 /* ---------- telemetry ---------- */
