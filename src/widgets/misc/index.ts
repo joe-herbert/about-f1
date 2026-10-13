@@ -3,6 +3,7 @@ import { calendar } from './Calendar'
 import { compoundUsage } from './CompoundUsage'
 import { notes } from './Notes'
 import { pitStops } from './PitStops'
+import { powerUnits } from './PowerUnits'
 import { raceControl } from './RaceControl'
 import { speedTrap } from './SpeedTrap'
 import { statTile } from './StatTile'
@@ -21,6 +22,7 @@ export const miscWidgets: WidgetDef[] = [
   pitStops,
   tyreDegradation,
   compoundUsage,
+  powerUnits,
   telemetry,
   trackMap,
   speedTrap,

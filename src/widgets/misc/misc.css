@@ -238,3 +238,36 @@
   color: var(--muted);
   font-size: 12px;
 }
+
+/* power unit elements */
+.pu-cell {
+  display: inline-block;
+  min-width: 22px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.pu-last {
+  background: color-mix(in srgb, var(--warn) 28%, transparent);
+  color: var(--ink);
+}
+.pu-over {
+  background: var(--bad);
+  color: #fff;
+  font-weight: 600;
+}
+/* fitted at the event shown */
+.pu-fresh {
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+.pu-note {
+  color: var(--muted);
+  font-size: 12px;
+}
+.pu-foot {
+  padding: 6px 4px 0;
+  color: var(--muted);
+  font-size: 11px;
+  border-top: 1px solid var(--hair);
+}

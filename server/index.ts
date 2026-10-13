@@ -9,6 +9,8 @@ import { auth, CLIENT_IP_HEADER } from './auth.ts'
 import { config, production } from './config.ts'
 import { migrateAppTables } from './db.ts'
 import { favourites } from './favourites.ts'
+import { startPowerUnitSync } from './fia/schedule.ts'
+import { powerUnits } from './powerUnits.ts'
 import { settings } from './settings.ts'
 
 // Bring the schema up to date: Better Auth's tables, then ours.
@@ -31,6 +33,7 @@ app.on(['GET', 'POST'], '/api/auth/*', (c) => {
 })
 app.route('/api/settings', settings)
 app.route('/api/favourites', favourites)
+app.route('/api/power-units', powerUnits)
 app.all('/api/*', (c) => c.json({ error: 'Not found' }, 404))
 
 // In production this server also serves the built site (`npm run build`).
@@ -45,3 +48,5 @@ if (production) {
 serve({ fetch: app.fetch, port: config.port }, (info) => {
   console.log(`API listening on http://localhost:${info.port}${production ? '' : ` (open ${config.appUrl})`}`)
 })
+
+startPowerUnitSync()
