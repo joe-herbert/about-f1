@@ -1,6 +1,6 @@
 # About F1
 
-Build-your-own Formula 1 dashboards from [OpenF1](https://openf1.org) timing data (2023 onward) and [Jolpica F1](https://github.com/jolpica/jolpica-f1) history (every season since 1950). No account needed: signed out, dashboards, layouts and preferences live in your browser's localStorage. Sign in (an emailed code, or a passkey) and they're saved to your account in MariaDB instead, so they follow you between browsers. Finished sessions are cached in IndexedDB either way.
+Build-your-own Formula 1 dashboards from [OpenF1](https://openf1.org) timing data (2023 onward) and [Jolpica F1](https://github.com/jolpica/jolpica-f1) history (every season since 1950), with all-time driver records from [f1db](https://github.com/f1db/f1db) (CC BY 4.0). No account needed: signed out, dashboards, layouts and preferences live in your browser's localStorage. Sign in (an emailed code, or a passkey) and they're saved to your account in MariaDB instead, so they follow you between browsers. Finished sessions are cached in IndexedDB either way.
 
 ```sh
 npm install
@@ -47,6 +47,7 @@ For production, `npm run build` then `npm start` with `NODE_ENV=production` (set
 - `src/api/synthetic.ts`: pre-2023 sessions use negative session keys encoding season, round and kind, so the rest of the app is source-agnostic
 - `src/api/jolpica/adapters.ts`: turns Jolpica data into OpenF1-shaped rows (drivers, results, grid, laps, positions, gaps, pit stops, standings, season progressions)
 - `src/api/jolpica`: Jolpica client (slow queue, hourly budget, pagination merging, TTL cache) and hooks. `champions.json` and `winners.json` are baked from Jolpica (seasons through 2025) because Jolpica won't serve standings without a season and the all-winners query costs 12 requests; bump `BAKED_THROUGH` in `hooks.ts` after re-baking.
+- `src/api/records`, `src/lib/records`: the Driver records panel. `records.json` holds every Grand Prix and sprint result since 1950, baked by `npm run bake:records` from f1db (results, poles, fastest laps, engines, standings, driver details) and the Jolpica database dump (laps led from 1996, Jolpica ids). Races after the bake are fetched from Jolpica at four requests each, without laps led, so re-bake now and then. `catalogue.ts` lists the stats; each is measured every way in `measures.ts` (total, youngest, streaks, per season, per Grand Prix…), plus one-offs in `specials.ts`.
 - `src/lib/history.ts`, `src/lib/livery.ts`: header session → Jolpica round, constructor livery colours
 - `src/store`: Zustand store persisted to localStorage (or the account, see `account.ts`), plus the starter dashboards
 - `src/lib`: derivations (positions per lap, gaps, telemetry distance), formatting, theme tokens
