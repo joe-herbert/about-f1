@@ -11,6 +11,7 @@ export type BuiltinCategory =
   | 'Championship'
   | 'Conditions'
   | 'Session'
+  | 'Preview'
   | 'Records'
   | 'Utility'
 

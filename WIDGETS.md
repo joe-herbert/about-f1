@@ -30,7 +30,7 @@ export default {
 }
 ```
 
-Built-in categories: Results, Championship, Race, Laps, Strategy, Telemetry, Conditions, Session, Records, Utility. A new category gets its own tab after them.
+Built-in categories: Results, Championship, Race, Laps, Strategy, Telemetry, Conditions, Session, Preview, Records, Utility. A new category gets its own tab after them.
 
 Prefix plugin `type`s with your name (`yourname:thing`) so they can't collide with built-ins or other plugins. Registering a built-in type is refused.
 

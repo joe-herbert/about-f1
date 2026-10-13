@@ -1,9 +1,10 @@
 import { useMemo } from 'react'
-import { useLaps, useLocation, useMeetings } from '../api/hooks'
+import { useLaps, useLocation, useMeetings, useSessions } from '../api/hooks'
+import type { Session } from '../api/types'
 import { fastestLap, lapWindow } from '../lib/derive'
-import { isSynthetic } from '../api/synthetic'
+import { isSynthetic, OPENF1_FIRST_YEAR } from '../api/synthetic'
 import { trackClock } from '../lib/trackTime'
-import { useGlobalSession } from '../lib/session'
+import { isUpcoming, useGlobalSession } from '../lib/session'
 import { useStore } from '../store'
 
 /** Circuit outline traced from one lap of car position data. */
@@ -41,10 +42,27 @@ function CircuitTrace({ sessionKey }: { sessionKey: number }) {
   )
 }
 
+/** A session to trace the circuit from: this one, or for one that hasn't run, the latest finished session at the same circuit. */
+function useTraceKey(session: Session | undefined, sessionKey: number | null) {
+  const upcoming = isUpcoming(session)
+  const year = session?.year ?? 0
+  const thisYear = useSessions(upcoming ? year : 0)
+  const lastYear = useSessions(upcoming && year - 1 >= OPENF1_FIRST_YEAR ? year - 1 : 0)
+  return useMemo(() => {
+    if (!upcoming) return sessionKey && !isSynthetic(sessionKey) ? sessionKey : null
+    const now = Date.now()
+    const past = [...(thisYear.data ?? []), ...(lastYear.data ?? [])]
+      .filter((s) => s.circuit_key === session!.circuit_key && !s.is_cancelled && Date.parse(s.date_end) < now && !isSynthetic(s.session_key))
+      .sort((a, b) => b.date_start.localeCompare(a.date_start))
+    return past[0]?.session_key ?? null
+  }, [upcoming, session, sessionKey, thisYear.data, lastYear.data])
+}
+
 export function SessionBanner() {
   const year = useStore((s) => s.year)
   const { session, sessionKey, isLoading } = useGlobalSession()
   const meetings = useMeetings(year)
+  const traceKey = useTraceKey(session, sessionKey)
 
   const { meeting, round } = useMemo(() => {
     const ms = [...(meetings.data ?? [])].sort((a, b) => a.date_start.localeCompare(b.date_start))
@@ -90,8 +108,8 @@ export function SessionBanner() {
           )}
         </div>
       </div>
-      {sessionKey && !isSynthetic(sessionKey) ? (
-        <CircuitTrace key={sessionKey} sessionKey={sessionKey} />
+      {traceKey ? (
+        <CircuitTrace key={traceKey} sessionKey={traceKey} />
       ) : (
         <div className="banner-year" aria-hidden>
           {session.year}

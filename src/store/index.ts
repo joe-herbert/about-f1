@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { Layout, Layouts } from 'react-grid-layout'
-import { defaultDashboards, driversDashboard, recordsDashboard } from './presets'
+import { defaultDashboards, driversDashboard, previewDashboard, recordsDashboard } from './presets'
 import { OPENF1_FIRST_YEAR, synthSessionKey } from '../api/synthetic'
 
 /** History-only panel types that now exist as regular panels reading both sources. */
@@ -34,6 +34,8 @@ export interface Dashboard {
   name: string
   layouts: Layouts
   widgets: Record<string, WidgetInstance>
+  /** Shown only while the header's session hasn't started, and opened automatically then */
+  upcoming?: boolean
 }
 
 export type ThemePref = 'system' | 'light' | 'dark'
@@ -130,7 +132,7 @@ function cloneDashboard(d: Dashboard, name: string): Dashboard {
   for (const [bp, l] of Object.entries(d.layouts)) {
     layouts[bp] = l.filter((i) => idMap[i.i]).map((i) => ({ ...i, i: idMap[i.i] }))
   }
-  return { id: uid(), name, layouts, widgets }
+  return { id: uid(), name, layouts, widgets, ...(d.upcoming && { upcoming: true }) }
 }
 
 const initialDashboards = defaultDashboards()
@@ -178,8 +180,8 @@ export const useStore = create<State>()(
       deleteDashboard: (id) =>
         set((s) => {
           const rest = s.dashboards.filter((d) => d.id !== id)
-          const dashboards = rest.length ? rest : defaultDashboards()
-          return { dashboards, activeId: dashboards[0].id }
+          const dashboards = rest.some((d) => !d.upcoming) ? rest : defaultDashboards()
+          return { dashboards, activeId: (dashboards.find((d) => !d.upcoming) ?? dashboards[0]).id }
         }),
       moveDashboard: (id, dir) =>
         set((s) => {
@@ -251,7 +253,7 @@ export const useStore = create<State>()(
     }),
     {
       name: 'f1-stats',
-      version: 5,
+      version: 6,
       migrate: (persisted, version) => {
         const s = persisted as State & { round?: number | null }
         if (!Array.isArray(s.dashboards)) return s
@@ -281,6 +283,8 @@ export const useStore = create<State>()(
             for (const l of Object.values(d.layouts)) for (const item of l) if (ids.has(item.i) && item.h === 11) item.h = 12
           }
         }
+        // v6 added the Race preview dashboard for sessions that haven't started.
+        if (version < 6) s.dashboards = [...s.dashboards, previewDashboard()]
         return s
       },
       partialize: (s): PersistedState => ({

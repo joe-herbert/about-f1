@@ -34,3 +34,13 @@ export function useWidgetSession(pinned: number | null | undefined) {
   if (pinned && pinned !== global.sessionKey) return { sessionKey: pinned, session: own.data?.[0] }
   return { sessionKey: global.sessionKey, session: global.session }
 }
+
+/** True when the session hasn't started yet. */
+export const isUpcoming = (s: Session | undefined, now = Date.now()) => !!s && !s.is_cancelled && Date.parse(s.date_start) > now
+
+/** Whether the header's session is still to come; null until the season's sessions load. */
+export function useHeaderUpcoming(): boolean | null {
+  const { session, isLoading } = useGlobalSession()
+  if (!session) return isLoading ? null : false
+  return isUpcoming(session)
+}
