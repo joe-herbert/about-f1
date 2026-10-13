@@ -5,7 +5,7 @@ type Item = [type: string, x: number, y: number, w: number, h: number, options?:
 
 const rid = () => Math.random().toString(36).slice(2, 10)
 
-function build(name: string, items: Item[]): Dashboard {
+function build(name: string, items: Item[], extra?: Partial<Dashboard>): Dashboard {
   const widgets: Record<string, WidgetInstance> = {}
   const lg: Layout[] = []
   for (const [type, x, y, w, h, options = {}, title] of items) {
@@ -13,7 +13,7 @@ function build(name: string, items: Item[]): Dashboard {
     widgets[id] = { id, type, options, title }
     lg.push({ i: id, x, y, w, h, minW: 2, minH: 3 })
   }
-  return { id: rid(), name, layouts: { lg }, widgets }
+  return { id: rid(), name, layouts: { lg }, widgets, ...extra }
 }
 
 /** All-time records: titles, wins, careers and circuit history (1950 onward). */
@@ -34,6 +34,24 @@ export function driversDashboard(): Dashboard {
   return build(
     'Drivers',
     Array.from({ length: 22 }, (_, i): Item => ['driver-card', (i % 4) * 6, Math.floor(i / 4) * 12, 6, 12, { rank: i + 1, showPhoto: true }]),
+  )
+}
+
+/** Opens instead of the others while the header's session is still to come: the weekend ahead and past races at the circuit. */
+export function previewDashboard(): Dashboard {
+  return build(
+    'Race preview',
+    [
+      ['preview-weekend', 0, 0, 8, 17],
+      ['preview-circuit-facts', 8, 0, 16, 5],
+      ['preview-last-race', 8, 5, 8, 12],
+      ['preview-title-fight', 16, 5, 8, 12],
+      ['preview-circuit-form', 0, 17, 16, 13],
+      ['hist-circuit', 16, 17, 8, 13, {}, 'Winners here'],
+      ['hist-circuit', 0, 30, 12, 12, { view: 'drivers' }, 'Most wins here'],
+      ['hist-circuit', 12, 30, 12, 12, { view: 'poles' }, 'Pole sitters here'],
+    ],
+    { upcoming: true },
   )
 }
 
@@ -90,5 +108,6 @@ export function defaultDashboards(): Dashboard[] {
     ]),
     driversDashboard(),
     recordsDashboard(),
+    previewDashboard(),
   ]
 }

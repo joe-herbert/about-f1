@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import { historyWidgets } from './history'
+import { previewWidgets } from './preview'
 import { miscWidgets } from './misc'
 import { raceWidgets } from './race'
 import { resultsWidgets } from './results'
@@ -90,6 +91,7 @@ export const CATEGORIES: BuiltinCategory[] = [
   'Telemetry',
   'Conditions',
   'Session',
+  'Preview',
   'Records',
   'Utility',
 ]
@@ -105,7 +107,7 @@ export function defaultOptions(def: WidgetDef) {
   return Object.fromEntries(def.options.map((o) => [o.key, o.default]))
 }
 
-registerWidget([...resultsWidgets, ...raceWidgets, ...miscWidgets, ...historyWidgets], 'builtin')
+registerWidget([...resultsWidgets, ...raceWidgets, ...miscWidgets, ...historyWidgets, ...previewWidgets], 'builtin')
 
 // Drop a file in src/widgets/custom that exports one or more WidgetDefs and it's registered here.
 const local = import.meta.glob<Record<string, unknown>>('./custom/**/*.{ts,tsx,js,jsx}', { eager: true })
