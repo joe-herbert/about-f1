@@ -7,7 +7,7 @@ import type { JData, JRace, JStandingsList } from './types'
 
 const BASE = 'https://api.jolpi.ca/ergast/f1'
 const PAGE = 100
-const MIN_GAP_MS = 320
+const MIN_GAP_MS = 500 // 320ms put 4 requests in under a second, right on the burst limit
 const HOURLY_BUDGET = 470 // leave headroom under the 500/hour limit
 const BUDGET_KEY = 'f1-stats:jolpica-requests'
 
