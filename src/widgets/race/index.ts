@@ -11,10 +11,12 @@ import { positionChart } from './PositionChart'
 import { raceTrace } from './RaceTrace'
 import { sectorComparison } from './SectorComparison'
 import { timingTower } from './TimingTower'
+import { trackReplay } from './TrackReplay'
 
 export const raceWidgets: WidgetDef[] = [
   lapTimes,
   timingTower,
+  trackReplay,
   positionChart,
   gapChart,
   raceTrace,

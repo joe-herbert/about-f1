@@ -217,6 +217,22 @@ export function useLocation(sessionKey: number | null | undefined, driver: numbe
   )
 }
 
+/** Every car's location over several time windows (one request each, so windows cache independently). */
+export function useLocationWindows(sessionKey: number | null | undefined, windows: [string, string][]) {
+  const settled = isSettled(sessionKey)
+  return useQueries({
+    queries: windows.map(([from, to]) => {
+      const params: Params = { session_key: sessionKey ?? undefined, 'date>=': from, 'date<': to }
+      return {
+        queryKey: ['location', params],
+        queryFn: ({ signal }: { signal: AbortSignal }) => get<Location>('location', params, { persist: settled, signal }),
+        enabled: !!sessionKey && !isSynthetic(sessionKey),
+        staleTime: settled ? Infinity : 30_000,
+      }
+    }),
+  })
+}
+
 /* ---------- season-wide ---------- */
 
 function useMeetingRange(year: number) {
