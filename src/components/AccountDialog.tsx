@@ -26,12 +26,15 @@ function deviceName(): string {
   return 'Passkey'
 }
 
-/** Runs an async action with a busy flag; a returned string or a thrown error becomes `error`. */
+/**
+ * Runs an async action with a busy flag; a returned string or a thrown error becomes `error`.
+ * `pending` names the running action, so its button can show a spinner.
+ */
 function useAction() {
-  const [busy, setBusy] = useState(false)
+  const [pending, setPending] = useState('')
   const [error, setError] = useState('')
-  const run = async (fn: () => Promise<string | void>) => {
-    setBusy(true)
+  const run = async (fn: () => Promise<string | void>, name = 'action') => {
+    setPending(name)
     setError('')
     try {
       const msg = await fn()
@@ -39,11 +42,13 @@ function useAction() {
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong. Try again.')
     } finally {
-      setBusy(false)
+      setPending('')
     }
   }
-  return { busy, error, setError, run }
+  return { busy: pending !== '', pending, error, setError, run }
 }
+
+const Spinner = () => <span className="spinner" aria-hidden />
 
 function CodeInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
@@ -69,7 +74,7 @@ function SignIn() {
   const [step, setStep] = useState<'email' | 'code'>('email')
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
-  const { busy, error, setError, run } = useAction()
+  const { busy, pending, error, setError, run } = useAction()
 
   // Offer saved passkeys in the email field's autofill.
   useEffect(() => {
@@ -89,7 +94,7 @@ function SignIn() {
       if (error) return error.message ?? 'Couldn’t send a code to that address.'
       setCode('')
       setStep('code')
-    })
+    }, 'send')
   }
 
   const verify = (e: FormEvent) => {
@@ -121,8 +126,9 @@ function SignIn() {
           Sign in
         </button>
         <div className="account-links">
-          <button type="button" className="link-btn" disabled={busy} onClick={() => sendCode()}>
-            Send a new code
+          <button type="button" className="link-btn" disabled={busy} aria-busy={pending === 'send'} onClick={() => sendCode()}>
+            {pending === 'send' && <Spinner />}
+            {pending === 'send' ? 'Sending…' : 'Send a new code'}
           </button>
           <button type="button" className="link-btn" onClick={() => (setStep('email'), setError(''))}>
             Use a different email
@@ -142,8 +148,9 @@ function SignIn() {
           <span>Email</span>
           <input type="email" autoComplete="username webauthn" required autoFocus value={email} onChange={(e) => setEmail(e.target.value)} />
         </label>
-        <button type="submit" className="btn primary" disabled={busy}>
-          Email me a code
+        <button type="submit" className="btn primary" disabled={busy} aria-busy={pending === 'send'}>
+          {pending === 'send' && <Spinner />}
+          {pending === 'send' ? 'Sending code…' : 'Email me a code'}
         </button>
       </form>
       <div className="account-or">or</div>
@@ -265,7 +272,8 @@ function DeleteAccount({ email, onDeleted }: { email: string; onDeleted: () => v
           </p>
           {error && <p className="form-error" role="alert">{error}</p>}
           <div className="account-actions">
-            <button type="button" className="btn danger" disabled={busy} onClick={remove}>
+            <button type="button" className="btn danger" disabled={busy} aria-busy={busy} onClick={remove}>
+              {busy && <Spinner />}
               Delete my account
             </button>
             <button type="button" className="btn ghost" disabled={busy} onClick={cancel}>
