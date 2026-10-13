@@ -20,6 +20,10 @@ export const config = {
   trustProxy: env.TRUST_PROXY === '1' || env.TRUST_PROXY === 'true',
   smtpUrl: env.SMTP_URL || '',
   mailFrom: env.MAIL_FROM || 'About F1 <no-reply@aboutf1.com>',
+  /** Read power unit usage from the FIA's documents (server/fia). 0 turns it off. */
+  fiaScrape: env.FIA_SCRAPE !== '0' && env.FIA_SCRAPE !== 'false',
+  /** Minutes between checks of the current season */
+  fiaScrapeMinutes: Math.max(5, Number(env.FIA_SCRAPE_MINUTES || 30)),
 }
 
 if (production && !config.smtpUrl) throw new Error('SMTP_URL is not set, so sign-in codes could not be emailed.')

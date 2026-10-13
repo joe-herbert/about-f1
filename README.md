@@ -18,10 +18,11 @@ For production, `npm run build` then `npm start` with `NODE_ENV=production` (set
 - **Session**: pick season → Grand Prix → session in the top bar, any season since 1950. "Latest" follows the most recent session.
 - **One set of panels, two sources**: panels use OpenF1 where it has the data (2023 onward) and Jolpica otherwise: whole seasons before 2023, plus gaps in OpenF1 such as starting grids or missing pit stops. Panels whose data only exists in live timing (telemetry, tyres, weather, race control) say so for older seasons; lap-by-lap panels work from 1996 and pit stops from 2011.
 - **Records**: all-time panels (champions, win leaders, careers, circuit history) follow the header's race, or set their own season in panel settings.
+- **Power unit elements**: engines, turbos, energy stores and the rest used by each driver against the season's allowance, who's one change from a grid penalty, the new elements fitted each weekend and the penalties. Read from the FIA's published documents (2019 onward) by the server; see [Power unit data](#power-unit-data).
 - Jolpica allows 500 requests an hour, so past seasons are cached permanently in IndexedDB and the app tracks the hourly budget (shown in Preferences).
 - **Focus**: click driver chips to focus them. Every panel dims (or hides) everyone else.
 - **Dashboards**: tabs across the top. Double-click to rename, `+` for a new one, `⋯` to duplicate, reorder, export/import JSON or delete.
-- **Panels**: "Add panel" opens the library (44 built-in panel types, plus any plugins you add at the bottom of it). Drag by the grip, resize from the corner, lock the layout when you're happy.
+- **Panels**: "Add panel" opens the library (46 built-in panel types, plus any plugins you add at the bottom of it). Drag by the grip, resize from the corner, lock the layout when you're happy.
 - **Panel settings** (gear icon): title, display options, its own driver list, or pin it to a different session, e.g. last year's race at this track next to this year's.
 - **Table view**: chart panels have a table toggle showing the underlying numbers.
 
@@ -38,9 +39,20 @@ For production, `npm run build` then `npm start` with `NODE_ENV=production` (set
 - **Deleting an account** (Account drawer) removes the user, their sessions, passkeys, settings and favourites. Better Auth only allows it within a day of signing in, so for older sessions the app emails a code to confirm first.
 - The Jolpica request budget stays in the browser.
 
+## Power unit data
+
+The FIA publishes power unit usage only as PDFs on [fia.com](https://www.fia.com/documents/championships/fia-formula-one-world-championship-14), so the server reads them into MariaDB (`server/fia`):
+
+- **What it reads**: each event's "PU Elements used per Driver up to now" table (the season's totals as the weekend starts), the technical delegate's "New PU elements for this Competition" reports (who fitted what, and how many they'd used before), and the stewards' decisions on power unit elements, including parc fermé changes, which are reported nowhere else. Table columns are matched by their headings, so the layout changes between seasons (MGU-H and EX until 2025; EXH, PU-CE and PU-ANC from 2026) are handled.
+- **When**: the current season every 30 minutes (`FIA_SCRAPE_MINUTES`), and any other season from 2019 the first time someone asks for it. `npm run scrape:pu -- 2025 2026` backfills from the command line. Requests go one a second; finished events and documents already read are skipped, and a MariaDB lock stops two scrapes running at once. `FIA_SCRAPE=0` turns it off.
+- **Counting**: a driver's total after an event is the latest FIA table plus the elements reported since. The tables win over anything worked out before them: they're the FIA's own totals, they pick up the odd change no document mentions, and when drivers swap seats mid-season the counts follow the car.
+- **Not covered: gearboxes and drivetrains.** The FIA publishes no gearbox or drivetrain usage from 2022 (none of 2022–2026's documents list it). 2019–2021 had "New gearboxes for this Event" reports under the old six-consecutive-events rule; they aren't read.
+- **Allowances** for 2025 and 2026 are set in `server/powerUnits.ts` (checked against the tables' red figures); other seasons take them from the reports, which state them.
+- **When the PDFs change**: a table with an unknown column or a row that doesn't fit is recorded as unreadable rather than stored wrong (the panel shows the count). Fix the parser in `server/fia/parse.ts` and bump `PARSER_VERSION` in `scrape.ts`; every document is read again on the next run.
+
 ## Code map
 
-- `server`: the API, run by Node directly (type stripping, no build). `auth.ts` is the Better Auth setup (email OTP and passkey plugins, MariaDB through Kysely), `settings.ts` is `/api/settings` (the whole store, or `/prefs` for the guide), `favourites.ts` is `/api/favourites`, `index.ts` runs migrations and in production serves `dist/`
+- `server`: the API, run by Node directly (type stripping, no build). `auth.ts` is the Better Auth setup (email OTP and passkey plugins, MariaDB through Kysely), `settings.ts` is `/api/settings` (the whole store, or `/prefs` for the guide), `favourites.ts` is `/api/favourites`, `powerUnits.ts` is `/api/power-units`, `fia/` reads the FIA's power unit documents (see [Power unit data](#power-unit-data)), `index.ts` runs migrations and in production serves `dist/`
 - `src/store/account.ts`: the auth client, and switching the store's persistence between localStorage and the account on sign-in, sign-out and startup
 
 - `src/api`: OpenF1 client (throttled queue, 429 retry, IndexedDB cache) and React Query hooks. `hooks.ts` picks the source per request: OpenF1 for real sessions (falling back to Jolpica when an endpoint is empty), Jolpica adapters for synthetic sessions

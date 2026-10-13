@@ -12,7 +12,8 @@
     "dev:server": "node --watch --env-file-if-exists=.env server/index.ts",
     "start": "NODE_ENV=production node --env-file-if-exists=.env server/index.ts",
     "db:up": "docker compose up -d --wait db",
-    "bake:records": "node scripts/bake-records.ts"
+    "bake:records": "node scripts/bake-records.ts",
+    "scrape:pu": "node --env-file-if-exists=.env scripts/scrape-power-units.ts"
   },
   "dependencies": {
     "@better-auth/passkey": "^1.7.7",
@@ -27,6 +28,7 @@
     "marked": "^18.1.1",
     "mysql2": "^3.24.5",
     "nodemailer": "^10.1.0",
+    "pdfjs-dist": "^6.4.299",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-grid-layout": "^1.5.4",
