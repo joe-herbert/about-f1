@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from 'node:async_hooks'
 import { passkey } from '@better-auth/passkey'
 import { betterAuth } from 'better-auth'
 import { createMiddleware } from 'hono/factory'
@@ -8,6 +9,12 @@ import { sendSignInCode } from './mail.ts'
 
 /** Set by the server from the connection (see index.ts), for rate limiting per client. */
 export const CLIENT_IP_HEADER = 'x-f1-client-ip'
+
+/**
+ * Better Auth logs and swallows errors from sendVerificationOTP, answering as if
+ * the code went out. The request notes a failed send here so handleAuth can say so.
+ */
+const mailStatus = new AsyncLocalStorage<{ failed: boolean }>()
 
 // No passwords: people sign in with a code emailed to them (which also creates the
 // account), then can add passkeys for quicker sign-ins.
@@ -34,7 +41,14 @@ export const auth = betterAuth({
       expiresIn: 5 * 60,
       allowedAttempts: 5,
       async sendVerificationOTP({ email, otp, type }) {
-        if (type === 'sign-in') await sendSignInCode(email, otp)
+        if (type !== 'sign-in') return
+        try {
+          await sendSignInCode(email, otp)
+        } catch (err) {
+          console.error(`Couldn't email a code to ${email}:`, err)
+          const status = mailStatus.getStore()
+          if (status) status.failed = true
+        }
       },
     }),
     passkey({
@@ -44,6 +58,17 @@ export const auth = betterAuth({
     }),
   ],
 })
+
+/** Better Auth's handler, but a sign-in code that couldn't be emailed is an error. */
+export async function handleAuth(req: Request): Promise<Response> {
+  const status = { failed: false }
+  const res = await mailStatus.run(status, () => auth.handler(req))
+  if (!status.failed) return res
+  return Response.json(
+    { code: 'EMAIL_NOT_SENT', message: 'We couldn’t send the email. Try again in a minute.' },
+    { status: 502 },
+  )
+}
 
 export type UserEnv = { Variables: { userId: string } }
 

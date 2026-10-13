@@ -5,7 +5,7 @@ import { serveStatic } from '@hono/node-server/serve-static'
 import { getMigrations } from 'better-auth/db/migration'
 import { Hono, type Context } from 'hono'
 import { logger } from 'hono/logger'
-import { auth, CLIENT_IP_HEADER } from './auth.ts'
+import { auth, CLIENT_IP_HEADER, handleAuth } from './auth.ts'
 import { config, production } from './config.ts'
 import { migrateAppTables } from './db.ts'
 import { favourites } from './favourites.ts'
@@ -29,7 +29,7 @@ app.use('/api/*', logger())
 app.on(['GET', 'POST'], '/api/auth/*', (c) => {
   // Overwrites anything the client sent under this name.
   c.req.raw.headers.set(CLIENT_IP_HEADER, clientIp(c))
-  return auth.handler(c.req.raw)
+  return handleAuth(c.req.raw)
 })
 app.route('/api/settings', settings)
 app.route('/api/favourites', favourites)
